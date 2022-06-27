@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 
 (async() => {
   try {
-    let argObj = JSON.parse(process.argv.slice(2)[0])
+    let csvLineObj = JSON.parse(process.argv.slice(2)[0])
     console.log('args: `JSON.stringify(args)`')
     const browser = await puppeteer.launch({
       headless: true,

@@ -99,9 +99,13 @@ const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, fil
   const promisesArray = [];
 
   for(let i=0; i < concurrencyRequested; i += 1) {
+    let cmd = `node ${file}`;
+    if (Object.keys(testArgs).length > 0) {
+      cmd = `node ${file} '${JSON.stringify(testArgs)}'`;
+    }
     promisesArray.push(
       executeTheCommand({ 
-        cmd: `node ${file} '${JSON.stringify(testArgs)}'`,
+        cmd,
         concurrencyCount: i,
         results,
         samplesCount,
@@ -124,7 +128,11 @@ function startPuppeteerLoadTest(paramOptions) {
   let testArgsArr = [];
   let paramOptionsClone = Object.assign({}, paramOptions);
   if (paramOptionsClone.csv) {
-    testArgsArr = loadCsv(csv);
+    try {
+      testArgsArr = loadCsv(paramOptionsClone.csv);
+    } catch (e) {
+      console.error('load csv file error', e)
+    }
   }
   paramOptionsClone['testArgsArr'] = testArgsArr;
   paramOptionsClone['testArgsArrI'] = 0;

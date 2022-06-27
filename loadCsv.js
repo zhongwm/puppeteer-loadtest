@@ -1,14 +1,12 @@
-const csvParser = require('csv-parser');
+const csvSyncParser = require('csv-parse/sync');
 const fs = require('fs');
 
 function loadCsv(filename) {
-  const results = [];
-  fs.createReadStream('loginusers.csv')
-    .pipe(csvParser())
-    .on('data', data => results.push(data))
-    .on('end', () => {
-      console.log(results)
-    })
-  return results
+    let csvf = fs.readFileSync(filename);
+    return csvSyncParser.parse(csvf, {
+      columns: true,
+      skip_empty_lines: true
+    });
 }
-module.exports = loadCsv
+
+module.exports = loadCsv;

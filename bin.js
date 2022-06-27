@@ -10,6 +10,7 @@ const fs = require('fs');
 const startPuppeteerLoadTest = require('.');
 
 const file = argv.file;
+const csv = argv.csv || '';
 const samplesRequested = argv.s || 1;
 const concurrencyRequested = argv.c || 1;
 const silent = argv.silent || false;
@@ -37,6 +38,7 @@ debug('puppeteer-loadtest is loading...');
 const start = async () => {
   const results = await startPuppeteerLoadTest({
     file,
+    csv,
     samplesRequested,
     concurrencyRequested,
   });
