@@ -37,6 +37,7 @@
     "puppeteer": "^10.4.0"
   },
   "devDependencies": {
+    "csv-parser": "^3.0.0",
     "mocha": "^9.1.2",
     "mock-require": "^3.0.3",
     "ultimate-chai": "^4.1.0"

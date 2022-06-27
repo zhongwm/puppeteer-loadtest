@@ -4,9 +4,11 @@ const createDebug = require('debug');
 const debug = createDebug('puppeteer-loadtest');
 const exec = require('child_process').exec;
 const perf = require('execution-time')();
+const loadCsv = require('./loadCsv')
 
 const defaultOptions = {
   file: '',
+  csv: '',
   samplesRequested: '',
   concurrencyRequested: 1,
   results: {},
@@ -54,6 +56,8 @@ const doAnotherSample = async (options) => {
   let {
     concurrencyRequested,
     file,
+    testArgsArr,
+    testArgsArrI,
     samplesCount,
     samplesRequested,
     results,
@@ -61,12 +65,27 @@ const doAnotherSample = async (options) => {
 
   if(samplesCount < samplesRequested) {
     startSampleLogPerformance(results, samplesCount);
-    await doConcurrency({ results,  samplesCount, concurrencyRequested, file });
+    let testArgs = {};
+    if (testArgsArr.length > 0) {
+      testArgs = testArgsArr[testArgsArrI]
+    }
+    await doConcurrency({ results,  samplesCount, concurrencyRequested, file, testArgs});
+
+    // prepare for next run.
+    let nextTestArgsArrI = 0;
+    if (testArgsArr.length > 0) {
+      nextTestArgsArrI = testArgsArrI + 1;
+      if (testArgsArr === testArgsArr.length) {
+        nextTestArgsArrI = 0;
+      }
+    }
     stopSampleLogPerformance(results, samplesCount);
     samplesCount += 1;
     return doAnotherSample({
       concurrencyRequested,
       file,
+      testArgsArr,
+      nextTestArgsArrI,
       samplesCount,
       samplesRequested,
       results,
@@ -76,13 +95,13 @@ const doAnotherSample = async (options) => {
   return results;
 };
 
-const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, file}) => {
+const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, file, testArgs}) => {
   const promisesArray = [];
 
   for(let i=0; i < concurrencyRequested; i += 1) {
     promisesArray.push(
       executeTheCommand({ 
-        cmd: `node ${file}`,
+        cmd: `node ${file} '${JSON.stringify(testArgs)}'`,
         concurrencyCount: i,
         results,
         samplesCount,
@@ -102,7 +121,14 @@ const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, fil
 };
 
 function startPuppeteerLoadTest(paramOptions) {
-  const options = Object.assign({}, defaultOptions, paramOptions);
+  let testArgsArr = [];
+  let paramOptionsClone = Object.assign({}, paramOptions);
+  if (paramOptionsClone.csv) {
+    testArgsArr = loadCsv(csv);
+  }
+  paramOptionsClone['testArgsArr'] = testArgsArr;
+  paramOptionsClone['testArgsArrI'] = 0;
+  const options = Object.assign({}, defaultOptions, paramOptionsClone);
   return doAnotherSample(options);
 }
 
