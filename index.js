@@ -65,11 +65,8 @@ const doAnotherSample = async (options) => {
 
   if(samplesCount < samplesRequested) {
     startSampleLogPerformance(results, samplesCount);
-    let testArgs = {};
-    if (testArgsArr.length > 0) {
-      testArgs = testArgsArr[testArgsArrI]
-    }
-    await doConcurrency({ results,  samplesCount, concurrencyRequested, file, testArgs});
+    
+    await doConcurrency({ results,  samplesCount, concurrencyRequested, file, testArgsArr, testArgsArrI});
 
     // prepare for next run.
     let nextTestArgsArrI = 0;
@@ -95,13 +92,18 @@ const doAnotherSample = async (options) => {
   return results;
 };
 
-const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, file, testArgs}) => {
+/**
+ * 
+ * @param {testArgsArrI} testArgsArrI number hint
+ * @returns 
+ */
+const doConcurrency = async ({ results,  samplesCount, concurrencyRequested, file, testArgsArr, testArgsArrI}) => {
   const promisesArray = [];
 
   for(let i=0; i < concurrencyRequested; i += 1) {
     let cmd = `node ${file}`;
-    if (Object.keys(testArgs).length > 0) {
-      cmd = `node ${file} '${JSON.stringify(testArgs)}'`;
+    if (testArgsArr.length > 0) {
+      cmd = `node ${file} '${JSON.stringify(testArgsArr[i % testArgsArr.length])}'`;
     }
     promisesArray.push(
       executeTheCommand({ 
