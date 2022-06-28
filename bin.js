@@ -11,6 +11,7 @@ const startPuppeteerLoadTest = require('.');
 
 const file = argv.file;
 const csv = argv.csv || '';
+const csvOffset = argv.csvOffset || 0;
 const samplesRequested = argv.s || 1;
 const concurrencyRequested = argv.c || 1;
 const silent = argv.silent || false;
@@ -39,6 +40,7 @@ const start = async () => {
   const results = await startPuppeteerLoadTest({
     file,
     csv,
+    csvOffset,
     samplesRequested,
     concurrencyRequested,
   });

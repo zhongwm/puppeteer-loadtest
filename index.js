@@ -132,6 +132,11 @@ function startPuppeteerLoadTest(paramOptions) {
   if (paramOptionsClone.csv) {
     try {
       testArgsArr = loadCsv(paramOptionsClone.csv);
+      if (paramOptionsClone.csvOffset) {
+        if (testArgsArr.length > paramOptionsClone.csvOffset) {
+          testArgsArr = testArgsArr.slice(paramOptionsClone.csvOffset)
+        }
+      }
     } catch (e) {
       console.error('load csv file error', e)
     }
